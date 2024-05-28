@@ -23,8 +23,10 @@ describe("GET /api/topics", () => {
     });
   });
 
-  test("404: responds with 404 error message if the endpoint is not valid", async () => {
-    const response = await request(app).get("/api/somethingelse").expect(404);
-    expect(response.body.msg).toBe("Endpoint not found");
+  describe("GET /api/somethingelse", () => {
+    test("404: responds with 404 error message if the endpoint is not valid", async () => {
+      const response = await request(app).get("/api/somethingelse").expect(404);
+      expect(response.body.msg).toBe("Endpoint not found");
+    });
   });
 });
