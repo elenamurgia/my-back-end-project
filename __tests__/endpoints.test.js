@@ -5,7 +5,6 @@ const endpoints = require("../endpoints.json");
 describe("GET /api", () => {
   test("200: responds with an accurate JSON object of all available endpoints", async () => {
     const response = await request(app).get("/api").expect(200);
-    console.log(response.body);
     expect(response.body).toEqual(endpoints);
   });
 });
