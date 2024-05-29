@@ -11,11 +11,11 @@ beforeEach(() => {
 afterAll(() => connection.end());
 
 describe("GET /api/articles/:article_id", () => {
-  test.only("200: responds with an object of a single article according to the article_id query ", async () => {
+  test("200: responds with an object of a single article according to the article_id query ", async () => {
     const response = await request(app).get("/api/articles/9").expect(200);
     const { article } = response.body;
     expect(article).toMatchObject({
-      article_id: expect.any(Number),
+      article_id: 9,
       title: expect.any(String),
       topic: expect.any(String),
       author: expect.any(String),
