@@ -11,11 +11,11 @@ beforeEach(() => {
 afterAll(() => connection.end());
 
 describe("GET /api/articles/:article_id", () => {
-  test.only("200: responds with an object of a single article according to the article_id query ", async () => {
+  test("200: responds with an object of a single article according to the article_id query ", async () => {
     const response = await request(app).get("/api/articles/9").expect(200);
     const { article } = response.body;
     expect(article).toMatchObject({
-      article_id: expect.any(Number),
+      article_id: 9,
       title: expect.any(String),
       topic: expect.any(String),
       author: expect.any(String),
@@ -27,11 +27,12 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
-describe("GET /api/:article_id", () => {
+describe("GET /api/articles/:article_id", () => {
   test("404: responds with 404 error message if the article_id does not exist", async () => {
     const response = await request(app).get("/api/articles/1000").expect(404);
     expect(response.body.msg).toBe("Not Found");
   });
+
   test("400: responds with 400 error message if the article_id is an invalid data type", async () => {
     const response = await request(app)
       .get("/api/articles/invalid")
