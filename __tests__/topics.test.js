@@ -17,8 +17,8 @@ describe("GET /api/topics", () => {
     expect(topics).toHaveLength(3);
     topics.forEach((topic) => {
       expect(topic).toMatchObject({
-        description: expect.any(String),
         slug: expect.any(String),
+        description: expect.any(String),
       });
     });
   });
@@ -26,7 +26,7 @@ describe("GET /api/topics", () => {
   describe("GET /api/somethingelse", () => {
     test("404: responds with 404 error message if the endpoint is not valid", async () => {
       const response = await request(app).get("/api/somethingelse").expect(404);
-      expect(response.body.msg).toBe("Endpoint not found");
+      expect(response.body.msg).toBe("Endpoint Not Found");
     });
   });
 });
