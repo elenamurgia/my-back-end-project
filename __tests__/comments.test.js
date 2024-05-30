@@ -81,7 +81,7 @@ describe("POST /api/articles/:article_id/comments", () => {
     });
   });
 
-  describe("POST /api/articles/:article_id/comments", () => {
+  describe("POST /api/articles/:article_id/comments, errors", () => {
     test("400: responds with 400 error if the body of the comment is missing", async () => {
       const response = await request(app)
         .post("/api/articles/9/comments")
