@@ -85,5 +85,19 @@
         }
       ]
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "adds a comment in relation to a specific article identified by the article_id ",
+    "queries": [],
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 20,
+          "username": "butter_bridge",
+          "body": "Brilliant article!",
+          "article_id": 9
+        }
+      ]
+    }
   }
 }

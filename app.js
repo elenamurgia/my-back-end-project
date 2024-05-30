@@ -1,22 +1,34 @@
 const express = require("express");
 const { getTopics } = require("./controllers/topics_controller");
-const { getArticlesById } = require("./controllers/articles_controller");
-const { getCommentsByArticleId } = require("./controllers/comments_controller");
 const { getEndpoints } = require("./controllers/endpoints_controller");
+const { getArticlesById } = require("./controllers/articles_controller");
+const {
+  getCommentsByArticleId,
+  addCommentsForArticleId,
+} = require("./controllers/comments_controller");
 
 const app = express();
+
+app.use(express.json());
 
 app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticlesById);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.get("/api", getEndpoints);
+app.post("/api/articles/:article_id/comments", addCommentsForArticleId);
 
 app.use((req, res, next) => {
   res.status(404).send({ msg: "Endpoint Not Found" });
 });
 
 app.use((err, req, res, next) => {
-  if (err.code === "22P02") {
+  if (
+    err.code === "22P02" ||
+    err.code === "23503" ||
+    err.code === "42601" ||
+    err.code === "23502" ||
+    err.code === "42703"
+  ) {
     res.status(400).send({ msg: "Bad Request" });
   } else {
     next(err);
