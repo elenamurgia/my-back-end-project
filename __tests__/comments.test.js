@@ -82,7 +82,7 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
 
   describe("POST /api/articles/:article_id/comments, errors", () => {
-    test("400: responds with 400 error if the body of the comment is missing", async () => {
+    test("400: responds with 400 error message if the body of the comment is missing", async () => {
       const response = await request(app)
         .post("/api/articles/9/comments")
         .send({ username: "butter_bridge" })
@@ -90,7 +90,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       expect(response.body.msg).toBe("Bad Request");
     });
 
-    test("404: responds with 404 error if username does not exist", async () => {
+    test("404: responds with 404 error message if username does not exist", async () => {
       const response = await request(app)
         .post("/api/articles/9/comments")
         .send({
@@ -109,12 +109,35 @@ describe("POST /api/articles/:article_id/comments", () => {
       expect(response.body.msg).toBe("Not Found");
     });
 
-    test("400: responds with 400 error if article_id is invalid", async () => {
+    test("400: responds with 400 error code if article_id is invalid", async () => {
       const response = await request(app)
         .post("/api/articles/invalid_id/comments")
         .send({ username: "butter_bridge", body: "Brilliant article!" })
         .expect(400);
       expect(response.body.msg).toBe("Bad Request");
     });
+  });
+});
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: should delete the proper comment and respond with status 204", async () => {
+    const response = await request(app).delete("/api/comments/1").expect(204);
+    expect(response.statusCode).toBe(204);
+  });
+});
+
+describe("DELETE /api/comments/:comment_id, errors", () => {
+  test("404: should responds with 404 error message if comment_id does not exist", async () => {
+    const response = await request(app)
+      .delete("/api/comments/100000")
+      .expect(404);
+    expect(response.statusCode).toBe(404);
+    expect(response.body.msg).toBe("Not Found");
+  });
+  test("400: responds with 400 error message if the comment_id is not a number", async () => {
+    const response = await request(app)
+      .delete("/api/comments/'hello")
+      .expect(400);
+    expect(response.body.msg).toBe("Bad Request");
   });
 });

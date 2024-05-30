@@ -28,3 +28,11 @@ exports.insertComment = async (username, body, article_id) => {
   );
   return newCommentQuery.rows[0];
 };
+
+exports.deleteCommentByCommentId = async (comment_id) => {
+  const deletedComment = await db.query(
+    "DELETE FROM comments WHERE comment_id = $1 RETURNING *",
+    [comment_id]
+  );
+  return deletedComment.rowCount;
+};

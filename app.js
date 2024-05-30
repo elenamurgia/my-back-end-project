@@ -8,6 +8,7 @@ const {
 const {
   getCommentsByArticleId,
   addCommentsForArticleId,
+  deleteComment,
 } = require("./controllers/comments_controller");
 
 const app = express();
@@ -20,6 +21,7 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.get("/api", getEndpoints);
 app.post("/api/articles/:article_id/comments", addCommentsForArticleId);
 app.patch("/api/articles/:article_id", updateArticle);
+app.delete("/api/comments/:comment_id", deleteComment);
 
 app.use((req, res, next) => {
   res.status(404).send({ msg: "Endpoint Not Found" });
