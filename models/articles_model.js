@@ -6,10 +6,6 @@ exports.selectArticlesById = async (article_id) => {
       "SELECT * FROM articles WHERE article_id = $1;",
       [article_id]
     );
-<<<<<<< HEAD
-=======
-
->>>>>>> main
     if (result.rows.length === 0) {
       return Promise.reject({ status: 404, msg: "Not Found" });
     }
