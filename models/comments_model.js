@@ -26,7 +26,6 @@ exports.insertComment = async (username, body, article_id) => {
     if (usernameQuery.rows.length === 0) {
       return Promise.reject({ status: 404, msg: "Not Found" });
     }
-
     const newCommentQuery = await db.query(
       `
       INSERT INTO comments (author, body, article_id)
