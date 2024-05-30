@@ -28,21 +28,32 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
     });
   });
-  test("200: responds with an empty array if the article_id does not exist", async () => {
+
+  test("200: should sort the comments in descending order from when they are created", async () => {
     const response = await request(app)
-      .get("/api/articles/1000/comments")
+      .get("/api/articles/9/comments")
       .expect(200);
-    expect(response.body.msg).toEqual([]);
+    const { comments } = response.body;
+    expect(comments).toHaveLength(2);
+    expect(comments).toBeSortedBy("created_at", { descending: true });
+  });
+
+  test("200: responds with an empty array if the article_id has no comments", async () => {
+    const response = await request(app)
+      .get("/api/articles/2/comments")
+      .expect(200);
+    expect(response.body.comments).toEqual([]);
   });
 });
 
-describe("GET /api/:article_id/comments", () => {
-  test("404: responds with 404 error message if the article_id has no comments", async () => {
+describe("GET /api/:article_id/comments, errors", () => {
+  test("404: responds with 404 error message if the article_id does not exist", async () => {
     const response = await request(app)
-      .get("/api/articles/2/comments")
+      .get("/api/articles/1000/comments")
       .expect(404);
     expect(response.body.msg).toBe("Not Found");
   });
+
   test("400: responds with 400 error message if the article_id is an invalid data type", async () => {
     const response = await request(app)
       .get("/api/articles/invalid/comments")
