@@ -101,6 +101,14 @@ describe("POST /api/articles/:article_id/comments", () => {
       expect(response.body.msg).toBe("Not Found");
     });
 
+    test("404: responds with 404 error message if the article_id does not exist", async () => {
+      const response = await request(app)
+        .get("/api/articles/1000/comments")
+        .send({ username: "butter_bridge" })
+        .expect(404);
+      expect(response.body.msg).toBe("Not Found");
+    });
+
     test("400: responds with 400 error if article_id is invalid", async () => {
       const response = await request(app)
         .post("/api/articles/invalid_id/comments")
