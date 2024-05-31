@@ -24,3 +24,20 @@ exports.updateArticleById = async (article_id, votesToBeAdded) => {
   }
   return updatedArticle.rows[0];
 };
+
+exports.selectArticlesByTopic = async (topic) => {
+  let articlesQuery = "SELECT * FROM articles";
+  const queryValues = [];
+
+  if (topic) {
+    articlesQuery += " WHERE topic = $1";
+    queryValues.push(topic);
+  }
+
+  const result = await db.query(articlesQuery, queryValues);
+
+  if (result.rows.length === 0) {
+    return Promise.reject({ status: 404, msg: "Not Found" });
+  }
+  return result.rows;
+};

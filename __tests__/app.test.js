@@ -38,7 +38,7 @@ describe("GET /api", () => {
 });
 
 describe("GET /api/articles/:article_id", () => {
-  test("200: responds with an object of a single article according to the article_id query ", async () => {
+  test("200: responds with an object of a single article according to the article_id query", async () => {
     const response = await request(app).get("/api/articles/9").expect(200);
     const { article } = response.body;
     expect(article).toMatchObject({
@@ -272,5 +272,62 @@ describe("GET /api/users", () => {
   test("404: responds with 404 error message if the endpoint is not valid", async () => {
     const response = await request(app).get("/api/somethingelse").expect(404);
     expect(response.body.msg).toBe("Endpoint Not Found");
+  });
+});
+
+describe("GET /api/articles", () => {
+  test("200: responds with an array of all articles", async () => {
+    const response = await request(app).get("/api/articles").expect(200);
+    const { articles } = response.body;
+    expect(articles).toHaveLength(13);
+    articles.forEach((article) => {
+      expect(article).toMatchObject({
+        article_id: expect.any(Number),
+        title: expect.any(String),
+        topic: expect.any(String),
+        author: expect.any(String),
+        body: expect.any(String),
+        created_at: expect.any(String),
+        votes: expect.any(Number),
+        article_img_url: expect.any(String),
+      });
+    });
+  });
+
+  test("200: responds with all articles for a given topic", async () => {
+    const response = await request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200);
+    const { articles } = response.body;
+    expect(articles).toHaveLength(12);
+    articles.forEach((article) => {
+      expect(article).toMatchObject({
+        article_id: expect.any(Number),
+        title: expect.any(String),
+        topic: "mitch",
+        author: expect.any(String),
+        body: expect.any(String),
+        created_at: expect.any(String),
+        votes: expect.any(Number),
+        article_img_url: expect.any(String),
+      });
+    });
+  });
+  test("200: responds with the topic name for a given topic", async () => {
+    const response = await request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200);
+    const { articles } = response.body;
+    expect(articles).toHaveLength(1);
+    articles.forEach((article) => {
+      expect(article.topic).toBe("cats");
+    });
+  });
+
+  test("404: responds with 404 error message if there are no articles with the given topic", async () => {
+    const response = await request(app)
+      .get("/api/articles?topic=dogs")
+      .expect(404);
+    expect(response.body.msg).toBe("Not Found");
   });
 });

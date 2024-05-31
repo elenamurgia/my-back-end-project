@@ -9,6 +9,7 @@ const { getEndpoints } = require("./controllers/endpoints_controller");
 const {
   getArticlesById,
   updateArticle,
+  getArticles,
 } = require("./controllers/articles_controller");
 
 const {
@@ -25,6 +26,7 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticlesById);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.get("/api/users", getUsers);
+app.get("/api/articles", getArticles);
 app.get("/api", getEndpoints);
 app.post("/api/articles/:article_id/comments", addCommentsForArticleId);
 app.patch("/api/articles/:article_id", updateArticle);
@@ -40,7 +42,8 @@ app.use((err, req, res, next) => {
     err.code === "23503" ||
     err.code === "42601" ||
     err.code === "23502" ||
-    err.code === "42703"
+    err.code === "42703" ||
+    err.code === "23502"
   ) {
     res.status(400).send({ msg: "Bad Request" });
   } else {
