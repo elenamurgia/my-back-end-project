@@ -35,3 +35,11 @@ exports.deleteCommentByCommentId = async (comment_id) => {
   );
   return deletedComment.rowCount;
 };
+
+exports.countAllCommentsByArticleId = async (article_id) => {
+  const commentCounter = await db.query(
+    "SELECT COUNT (*) FROM comments WHERE article_id = $1;",
+    [article_id]
+  );
+  return commentCounter.rows[0];
+};

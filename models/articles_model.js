@@ -41,3 +41,11 @@ exports.selectArticlesByTopic = async (topic) => {
   }
   return result.rows;
 };
+
+exports.countAllCommentsByArticleId = async (article_id) => {
+  const commentCounter = await db.query(
+    "SELECT COUNT(*) as count FROM comments WHERE article_id = $1;",
+    [article_id]
+  );
+  return commentCounter.rows[0];
+};
