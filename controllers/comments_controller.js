@@ -35,12 +35,9 @@ exports.deleteComment = async (req, res, next) => {
     const { comment_id } = req.params;
     const deletedCommentCount = await deleteCommentByCommentId(comment_id);
     if (deletedCommentCount > 0) {
-      return res.status(204).send();
+      return res.status(204).send({});
     } else {
       return res.status(404).send({ msg: "Not Found" });
-    }
-    if (typeof deletedCommentCount !== "number") {
-      return res.status(400).send({ msg: "Bad Request" });
     }
   } catch (err) {
     next(err);
