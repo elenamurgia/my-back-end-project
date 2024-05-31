@@ -331,3 +331,31 @@ describe("GET /api/articles", () => {
     expect(response.body.msg).toBe("Not Found");
   });
 });
+
+describe("GET /api/articles/:article_id (comment_count)", () => {
+  test("200: responds with the article_id and the number of comments with the specified article_id", async () => {
+    const response = await request(app).get("/api/articles/9").expect(200);
+    const { article, comment_count } = response.body;
+    expect(article.article_id).toBe(9);
+    expect(comment_count).toBe(2);
+  });
+
+  test("200: responds with the article_id and zero comment count when there are no comments", async () => {
+    const response = await request(app).get("/api/articles/2").expect(200);
+    const { article, comment_count } = response.body;
+    expect(article.article_id).toBe(2);
+    expect(comment_count).toBe(0);
+  });
+
+  test("400: responds with a 400 error if the article_id is an invalid data type", async () => {
+    const response = await request(app)
+      .get("/api/articles/not_a_number")
+      .expect(400);
+    expect(response.body.msg).toBe("Bad Request");
+  });
+
+  test("404: responds with a 404 error if the article_id is a valid data type but does not exist", async () => {
+    const response = await request(app).get("/api/articles/9999").expect(404);
+    expect(response.body.msg).toBe("Not Found");
+  });
+});
