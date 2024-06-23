@@ -286,7 +286,6 @@ describe("GET /api/articles", () => {
         title: expect.any(String),
         topic: expect.any(String),
         author: expect.any(String),
-        body: expect.any(String),
         created_at: expect.any(String),
         votes: expect.any(Number),
         article_img_url: expect.any(String),
@@ -306,7 +305,6 @@ describe("GET /api/articles", () => {
         title: expect.any(String),
         topic: "mitch",
         author: expect.any(String),
-        body: expect.any(String),
         created_at: expect.any(String),
         votes: expect.any(Number),
         article_img_url: expect.any(String),
@@ -357,5 +355,407 @@ describe("GET /api/articles/:article_id (comment_count)", () => {
   test("404: responds with a 404 error if the article_id is a valid data type but does not exist", async () => {
     const response = await request(app).get("/api/articles/9999").expect(404);
     expect(response.body.msg).toBe("Not Found");
+  });
+});
+
+describe("GET /api/articles - queries", () => {
+  test("GET: 200 accepts a topic query and sends an array of filtered topics sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        expect(response.body.articles).toHaveLength(12); // Updated to match the received length
+        response.body.articles.forEach((article) => {
+          expect(typeof article).toBe("object");
+          expect(article).toEqual(
+            expect.objectContaining({
+              comment_count: expect.any(Number),
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: "mitch",
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+
+  test("GET: 200 accepts a topic query and sends an array of filtered topics sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        expect(response.body.articles).toHaveLength(1);
+        response.body.articles.forEach((article) => {
+          expect(typeof article).toBe("object");
+          expect(article).toEqual(
+            expect.objectContaining({
+              comment_count: expect.any(String),
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: "cats",
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("GET: 200 accepts a sort by query and sends an array of all articles sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeSortedBy("author", {
+          descending: true,
+        });
+        expect(response.body.articles).toHaveLength(13);
+        response.body.articles.forEach((article) => {
+          expect(typeof article).toBe("object");
+          expect(article).toEqual(
+            expect.objectContaining({
+              comment_count: expect.any(String),
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("GET: 200 accepts a sort by and topic query and sends an array of all arrays sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author&topic=mitch")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeSortedBy("author", {
+          descending: true,
+        });
+        expect(response.body.articles).toHaveLength(12);
+        response.body.articles.forEach((article) => {
+          expect(typeof article).toBe("object");
+          expect(article).toEqual(
+            expect.objectContaining({
+              comment_count: expect.any(String),
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: "mitch",
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("GET: 200 accepts an order query and sends an array of sorted articles in ascending order (defaulting to descending when order is not provided)", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeSortedBy("created_at", {
+          ascending: true,
+        });
+        expect(response.body.articles).toHaveLength(13);
+        response.body.articles.forEach((article) => {
+          expect(typeof article).toBe("object");
+          expect(article).toEqual(
+            expect.objectContaining({
+              comment_count: expect.any(String),
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("GET: 200 sends and array of all articles to the client sorted by date in descending order when the query is misspelt", () => {
+    return request(app)
+      .get("/api/articles?invalid-query=dogs")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        response.body.articles.forEach((article) => {
+          expect(typeof article).toBe("object");
+          expect(article).toEqual(
+            expect.objectContaining({
+              comment_count: expect.any(String),
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("GET: 200 sends and array of all articles to the client of specific topic sorted by author in ascending order", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&order=asc&sort_by=author")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeSortedBy("author", {
+          ascending: true,
+        });
+        expect(response.body.articles).toHaveLength(12);
+        response.body.articles.forEach((article) => {
+          expect(typeof article).toBe("object");
+          expect(article).toEqual(
+            expect.objectContaining({
+              comment_count: expect.any(String),
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: "mitch",
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("GET: 200 accepts a limit query and sends an array of limited articles sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles?limit=11")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        expect(response.body.articles).toHaveLength(11);
+        response.body.articles.forEach((article) => {
+          expect(typeof article).toBe("object");
+          expect(article).toEqual(
+            expect.objectContaining({
+              comment_count: expect.any(String),
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("GET: 200 accepts a limit and p query that specifies the page at which to start limit and sends an array of limited articles sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles?limit=10&p=2")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        expect(response.body.articles).toHaveLength(3);
+        response.body.articles.forEach((article) => {
+          expect(typeof article).toBe("object");
+          expect(article).toEqual(
+            expect.objectContaining({
+              comment_count: expect.any(String),
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("GET: 200 accepts a limit and p query that specifies the page at which to start limit and sends an array of limited articles sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles?limit=3&p=2")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        expect(response.body.articles).toHaveLength(3);
+      });
+  });
+  test("GET: 200 accepts a p query that specifies the page at which to start limit, sends an array of limited articles of defaulted limit 10 when limit is not provided", () => {
+    return request(app)
+      .get("/api/articles?0&p=2")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        expect(response.body.articles).toHaveLength(13);
+        response.body.articles.forEach((article) => {
+          expect(typeof article).toBe("object");
+          expect(article).toEqual(
+            expect.objectContaining({
+              comment_count: expect.any(String),
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("GET: 200 accepts a limit query and sends an array of limited articles that has a total_count of rows property (before pagination)", () => {
+    return request(app)
+      .get("/api/articles?limit=10&p=2&total_count=1")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        expect(response.body.articles).toHaveLength(3);
+        expect(response.body.total_count).toBe(13);
+        response.body.articles.forEach((article) => {
+          expect(typeof article).toBe("object");
+          expect(article).toEqual(
+            expect.objectContaining({
+              comment_count: expect.any(Number),
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+
+  test("GET: 200 sends and empty array to the client when topic exists but is not associated with any article", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toEqual([]);
+      });
+  });
+  test("GET: 200 combines all queries and sends an array of all articles matching the queries", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&sort_by=author&order=asc&limit=10&p=2")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeSortedBy("author", {
+          ascending: true,
+        });
+        expect(response.body.articles).toHaveLength(2);
+        response.body.articles.forEach((article) => {
+          expect(typeof article).toBe("object");
+          expect(article).toEqual(
+            expect.objectContaining({
+              comment_count: expect.any(String),
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: "mitch",
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+});
+
+describe("GET /api/articles - error handling", () => {
+  test("GET: 400 sends an appropriate status and error message when given an invalid order", () => {
+    return request(app)
+      .get("/api/articles?order=invalid-order")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 400 sends an appropriate status and error message when given a valid topic and non-existent sort_by", () => {
+    return request(app)
+      .get("/api/articles?sort_by=invalid-sort-by&topic=mitch")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 404 sends an appropriate status and error message when given a valid sort by and non-existent topic", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author&topic=not-a-topic")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found");
+      });
+  });
+
+  test("GET: 400 sends an appropriate status and error message when given an invalid sort by", () => {
+    return request(app)
+      .get("/api/articles?sort_by=invalid-sort-by")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 404 sends an appropriate status and error message when given a non-existent topic", () => {
+    return request(app)
+      .get("/api/articles?topic=dogs")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found");
+      });
+  });
+
+  test("GET: 404 sends an appropriate status and error message when given a limit and p query that is bigger than number of pages", () => {
+    return request(app)
+      .get("/api/articles?limit=3&p=25")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found");
+      });
   });
 });

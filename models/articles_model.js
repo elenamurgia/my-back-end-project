@@ -25,21 +25,76 @@ exports.updateArticleById = async (article_id, votesToBeAdded) => {
   return updatedArticle.rows[0];
 };
 
-exports.selectArticlesByTopic = async (topic) => {
-  let articlesQuery = "SELECT * FROM articles";
+exports.filterArticles = async (
+  order = "desc",
+  sort_by = "created_at",
+  topic,
+  limit,
+  p,
+  total_count = "0"
+) => {
   const queryValues = [];
+  const acceptableOrders = ["asc", "desc"];
+  const acceptableSortBys = [
+    "author",
+    "title",
+    "topic",
+    "article_id",
+    "comment_count",
+    "article_img_url",
+    "votes",
+    "created_at",
+  ];
+  const acceptableTotalCounts = ["0", "1"];
+
+  if (!acceptableOrders.includes(order)) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+  if (!acceptableSortBys.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+  if (!acceptableTotalCounts.includes(total_count)) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  let baseSQLString = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments)::int AS comment_count`;
+
+  if (total_count === "1") {
+    baseSQLString += `, COUNT(*) OVER() AS total_count`;
+  }
+
+  baseSQLString += ` FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id`;
 
   if (topic) {
-    articlesQuery += " WHERE topic = $1";
+    baseSQLString += ` WHERE articles.topic = $${queryValues.length + 1}`;
     queryValues.push(topic);
   }
 
-  const result = await db.query(articlesQuery, queryValues);
+  baseSQLString += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`;
 
-  if (result.rows.length === 0) {
+  if (limit) {
+    baseSQLString += ` LIMIT $${queryValues.length + 1}`;
+    queryValues.push(limit);
+    if (p) {
+      const offset = limit * (p - 1);
+      baseSQLString += ` OFFSET $${queryValues.length + 1}`;
+      queryValues.push(offset);
+    }
+  }
+
+  const { rows } = await db.query(baseSQLString, queryValues);
+  if (rows.length === 0 && p > 1) {
     return Promise.reject({ status: 404, msg: "Not Found" });
   }
-  return result.rows;
+  const returnArray = [rows];
+  if (total_count === "1") {
+    const totalCount = +rows[0]?.total_count || 0;
+    rows.forEach((row) => {
+      delete row.total_count;
+    });
+    returnArray.push(totalCount);
+  }
+  return returnArray;
 };
 
 exports.countAllCommentsByArticleId = async (article_id) => {
