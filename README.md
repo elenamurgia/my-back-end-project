@@ -4,7 +4,7 @@ Welcome to the Northcoders News API! This API is designed to facilitate programm
 
 ## Live API Endpoint
 
-Access the live version of the Northcoders News API [here](https://nc-northcoders-news-api.onrender.com).
+Access the live version of the Northcoders News API [here](https://nc-news-api-t2cr.onrender.com/).
 
 ## Contributing to the Repository
 
