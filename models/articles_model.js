@@ -104,3 +104,10 @@ exports.countAllCommentsByArticleId = async (article_id) => {
   );
   return commentCounter.rows[0];
 };
+
+exports.searchArticles = async (searchTerm) => {
+  const query = `SELECT * FROM articles WHERE title ILIKE $1 OR body ILIKE $1;`;
+  const values = [`%${searchTerm}%`];
+  const result = await db.query(query, values);
+  return result.rows;
+};

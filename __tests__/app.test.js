@@ -759,3 +759,96 @@ describe("GET /api/articles - error handling", () => {
       });
   });
 });
+
+describe("GET /api/articles/search/:query", () => {
+  test("200: responds with an array of articles containing the search query in the title or body", async () => {
+    const response = await request(app)
+      .get("/api/articles/search/shadow")
+      .expect(200);
+    const { articles } = response.body;
+    expect(articles.length).toBeGreaterThan(0);
+    articles.forEach((article) => {
+      expect(article).toMatchObject({
+        article_id: expect.any(Number),
+        title: expect.any(String),
+        topic: expect.any(String),
+        author: expect.any(String),
+        created_at: expect.any(String),
+        votes: expect.any(Number),
+        article_img_url: expect.any(String),
+      });
+      expect(article.title.toLowerCase()).toContain("shadow");
+    });
+  });
+
+  test("200: responds with an empty array if no articles match the search query", async () => {
+    const response = await request(app)
+      .get("/api/articles/search/nonexistentword")
+      .expect(200);
+    const { articles } = response.body;
+    expect(articles).toEqual([]);
+  });
+
+  test("400: responds with 400 error message if the query is an invalid data type", async () => {
+    const response = await request(app)
+      .get("/api/articles/search/")
+      .expect(400);
+    expect(response.body.msg).toBe("Bad Request");
+  });
+});
+
+describe("GET /api/articles - error handling", () => {
+  test("GET: 400 sends an appropriate status and error message when given an invalid order", () => {
+    return request(app)
+      .get("/api/articles?order=invalid-order")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 400 sends an appropriate status and error message when given a valid topic and non-existent sort_by", () => {
+    return request(app)
+      .get("/api/articles?sort_by=invalid-sort-by&topic=mitch")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 404 sends an appropriate status and error message when given a valid sort by and non-existent topic", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author&topic=not-a-topic")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found");
+      });
+  });
+
+  test("GET: 400 sends an appropriate status and error message when given an invalid sort by", () => {
+    return request(app)
+      .get("/api/articles?sort_by=invalid-sort-by")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 404 sends an appropriate status and error message when given a non-existent topic", () => {
+    return request(app)
+      .get("/api/articles?topic=dogs")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found");
+      });
+  });
+
+  test("GET: 404 sends an appropriate status and error message when given a limit and p query that is bigger than number of pages", () => {
+    return request(app)
+      .get("/api/articles?limit=3&p=25")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not Found");
+      });
+  });
+});

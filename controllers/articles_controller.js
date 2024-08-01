@@ -3,6 +3,7 @@ const {
   updateArticleById,
   filterArticles,
   countAllCommentsByArticleId,
+  searchArticles,
 } = require("../models/articles_model");
 
 const { checkTopicExists } = require("../models/topics_model");
@@ -47,6 +48,19 @@ exports.getArticles = async (req, res, next) => {
       responseBody.total_count = resolvedPromises[0][1];
     }
     res.status(200).send(responseBody);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.searchArticles = async (req, res, next) => {
+  try {
+    const { query } = req.params;
+    if (typeof query !== "string" || query.trim().length === 0) {
+      return res.status(400).send({ msg: "Bad Request" });
+    }
+    const articles = await searchArticles(query);
+    res.status(200).send({ articles });
   } catch (err) {
     next(err);
   }
